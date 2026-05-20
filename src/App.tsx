@@ -180,32 +180,7 @@ export default function App() {
         setAuthError(data.message || "Login gagal.");
       }
     } catch (err) {
-      // Offline fallback login for easy preview testing
-      const testUser = loginUsername.trim().toLowerCase();
-      const testPass = loginPassword.trim().toLowerCase();
-      
-      let matched: User | undefined;
-      let isPassOk = false;
-
-      if (testUser === "admin" || testUser === "administrator utama") {
-        matched = { id: "usr-1", username: "admin", nama: "Administrator Utama", role: "Admin" };
-        isPassOk = (testPass === "123456" || testPass === "password");
-      } else if (testUser === "operator" || testUser === "operator wh rm") {
-        matched = { id: "usr-2", username: "operator", nama: "Operator WH RM", role: "Operator" };
-        isPassOk = (testPass === "123456" || testPass === "password");
-      } else if (testUser === "viewer") {
-        matched = { id: "usr-3", username: "viewer", nama: "Viewer / Supervisor", role: "Viewer" };
-        isPassOk = (testPass === "" || testPass === "no password" || testPass === "password");
-      }
-
-      if (matched && isPassOk) {
-        setCurrentUser(matched);
-        localStorage.setItem("wh_logged_user", JSON.stringify(matched));
-        setLoginUsername("");
-        setLoginPassword("");
-        return;
-      }
-      setAuthError("Gagal menghubungi server auth atau data salah. Presets: Admin [123456], Operator [123456], Viewer [Tanpa Password]");
+      setAuthError("Gagal menghubungi server auth. Periksa koneksi jaringan Anda.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -253,47 +228,7 @@ export default function App() {
         setTxError(data.message || "Gagal memproses transaksi stock.");
       }
     } catch (err) {
-      // Local Fallback simulation logic so user changes are fully reflected offline if server disconnected
-      const newTxId = `TX-${Date.now().toString().slice(-6)}`;
-      const activeItem = state.items.find(i => i.id === txItemId);
-      if (!activeItem) return;
-
-      const updatedBalances = [...state.stockBalances];
-      const matchIdx = updatedBalances.findIndex(b => b.item_id === txItemId && b.warehouse_id === txWarehouseId);
-      const currentQty = matchIdx !== -1 ? updatedBalances[matchIdx].qty : 0;
-
-      if (txType === "OUT" && currentQty < Number(txQty)) {
-        setTxError(`Stok tidak mencukupi. Sisa: ${currentQty} ${activeItem.unit}.`);
-        setIsSubmittingTx(false);
-        return;
-      }
-
-      const calculated = txType === "IN" ? currentQty + Number(txQty) : currentQty - Number(txQty);
-      if (matchIdx !== -1) {
-        updatedBalances[matchIdx].qty = calculated;
-      } else {
-        updatedBalances.push({ item_id: txItemId, warehouse_id: txWarehouseId, qty: calculated });
-      }
-
-      const newTx: Transaction = {
-        id: newTxId,
-        date: new Date().toISOString(),
-        item_id: txItemId,
-        warehouse_id: txWarehouseId,
-        type: txType,
-        qty: Number(txQty),
-        notes: txNotes || (txType === "IN" ? "Stock Masuk" : "Stock Keluar"),
-        created_by: currentUser?.nama || "Operator Offline"
-      };
-
-      setState(prev => ({
-        ...prev,
-        stockBalances: updatedBalances,
-        transactions: [newTx, ...prev.transactions]
-      }));
-      setShowTxModal(false);
-      setTxQty("");
-      setTxNotes("");
+      setTxError("Gagal menghubungi server. Periksa koneksi internet Anda.");
     } finally {
       setIsSubmittingTx(false);
     }
@@ -339,21 +274,7 @@ export default function App() {
         }
       }
     } catch (err) {
-      // Local fallback logic
-      if (editingWh) {
-        setState(prev => ({
-          ...prev,
-          warehouses: prev.warehouses.map(w => w.id === editingWh.id ? { ...w, name: whName, address: whAddress, pic: whPic, phone: whPhone } : w)
-        }));
-      } else {
-        const localId = `WH-${Date.now().toString().slice(-3)}`;
-        setState(prev => ({
-          ...prev,
-          warehouses: [...prev.warehouses, { id: localId, name: whName, address: whAddress, pic: whPic, phone: whPhone }]
-        }));
-      }
-      setShowWhModal(false);
-      setEditingWh(null);
+      setWhError("Gagal menghubungi server. Periksa koneksi internet Anda.");
     }
   };
 
@@ -376,10 +297,7 @@ export default function App() {
         alert(data.message || "Gagal menghapus gudang.");
       }
     } catch (err) {
-      setState(prev => ({
-        ...prev,
-        warehouses: prev.warehouses.filter(w => w.id !== id)
-      }));
+      alert("Gagal menghubungi server untuk menghapus gudang.");
     }
   };
 
@@ -423,21 +341,7 @@ export default function App() {
         }
       }
     } catch (err) {
-      // Local fallback
-      if (editingItem) {
-        setState(prev => ({
-          ...prev,
-          items: prev.items.map(i => i.id === editingItem.id ? { ...i, name: itemName, unit: itemUnit, min_stock: itemMinStock } : i)
-        }));
-      } else {
-        const localId = `IT-${Date.now().toString().slice(-3)}`;
-        setState(prev => ({
-          ...prev,
-          items: [...prev.items, { id: localId, name: itemName, unit: itemUnit, min_stock: itemMinStock }]
-        }));
-      }
-      setShowItemModal(false);
-      setEditingItem(null);
+      setItemError("Gagal menghubungi server. Periksa koneksi internet Anda.");
     }
   };
 
@@ -460,10 +364,7 @@ export default function App() {
         alert(data.message || "Gagal menghapus item.");
       }
     } catch (err) {
-      setState(prev => ({
-        ...prev,
-        items: prev.items.filter(i => i.id !== id)
-      }));
+      alert("Gagal menghubungi server untuk menghapus item.");
     }
   };
 
@@ -493,14 +394,7 @@ export default function App() {
         setUserError(data.message || "Gagal menambah user.");
       }
     } catch (err) {
-      const localId = `usr-${Date.now()}`;
-      setState(prev => ({
-        ...prev,
-        users: [...prev.users, { id: localId, username: userUsername, nama: userNama, role: userRole }]
-      }));
-      setShowUserModal(false);
-      setUserUsername("");
-      setUserNama("");
+      setUserError("Gagal menghubungi server untuk mendaftarkan user.");
     }
   };
 
@@ -521,10 +415,7 @@ export default function App() {
         alert(data.message || "Gagal menghapus user.");
       }
     } catch (err) {
-      setState(prev => ({
-        ...prev,
-        users: prev.users.filter(u => u.id !== id)
-      }));
+      alert("Gagal menghubungi server untuk menghapus user.");
     }
   };
 
@@ -770,9 +661,9 @@ export default function App() {
 
           <div className="flex items-center gap-2">
             {/* Quick API status Indicator */}
-            <div className={`flex items-center gap-1.5 px-2 py-1 rounded border text-[9px] font-mono uppercase tracking-wide font-bold ${apiError ? "bg-amber-50 border-amber-200 text-amber-700" : "bg-emerald-50 border-emerald-100 text-emerald-800"}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${apiError ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`}></span>
-              <span>{apiError ? "DEMO MODE (OFFLINE)" : "CLOUD RUN DB LIVE"}</span>
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded border text-[9px] font-mono uppercase tracking-wide font-bold ${apiError ? "bg-red-50 border-red-200 text-red-700" : "bg-emerald-50 border-emerald-100 text-emerald-800"}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${apiError ? "bg-red-500 animate-pulse" : "bg-emerald-500"}`}></span>
+              <span>{apiError ? "SERVER DISCONNECTED" : "SERVER CONNECTED"}</span>
             </div>
 
             {currentUser.role !== "Viewer" && (
