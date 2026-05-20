@@ -641,33 +641,7 @@ export default function App() {
               {isLoggingIn ? "Mengautentikasi..." : "Masuk Sistem Monitoring"}
             </button>
 
-            {/* Quick Demo Assist */}
-            <div className="pt-3.5 border-t border-slate-100">
-              <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 font-mono">[Presets Akun Pengujian]</span>
-              <div className="grid grid-cols-3 gap-1.5 font-mono text-[10px]">
-                <button
-                  type="button"
-                  onClick={() => { setLoginUsername("admin"); setLoginPassword("123456"); }}
-                  className="p-1 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-center border border-slate-200 rounded text-slate-700 transition-colors uppercase font-bold cursor-pointer"
-                >
-                  Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setLoginUsername("operator"); setLoginPassword("123456"); }}
-                  className="p-1 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-center border border-slate-200 rounded text-slate-700 transition-colors uppercase font-bold cursor-pointer"
-                >
-                  Operator
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setLoginUsername("viewer"); setLoginPassword(""); }}
-                  className="p-1 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-center border border-slate-200 rounded text-slate-700 transition-colors uppercase font-bold cursor-pointer"
-                >
-                  Viewer
-                </button>
-              </div>
-            </div>
+
           </form>
         </div>
       </div>
