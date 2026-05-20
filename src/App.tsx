@@ -54,7 +54,7 @@ export default function App() {
   const [apiError, setApiError] = useState<string | null>(null);
 
   // Nav, Filter & UI States
-  const [activeTab, setActiveTab] = useState<"dashboard" | "stock" | "gudang" | "history" | "user" | "mysql">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "stock" | "gudang" | "history" | "user">("dashboard");
   const [filterWarehouse, setFilterWarehouse] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -704,7 +704,7 @@ export default function App() {
             <span>History Log</span>
           </button>
 
-          <div className="pt-3 text-[10px] font-bold text-slate-600 tracking-wider uppercase px-2 py-1 select-none">Sistem &amp; Basis Data</div>
+          <div className="pt-3 text-[10px] font-bold text-slate-600 tracking-wider uppercase px-2 py-1 select-none">Sistem Otorisasi</div>
 
           <button
             onClick={() => { setActiveTab("user"); setMobileMenuOpen(false); }}
@@ -712,14 +712,6 @@ export default function App() {
           >
             <Users className="h-3.5 w-3.5 shrink-0" />
             <span>Sistem Users</span>
-          </button>
-
-          <button
-            onClick={() => { setActiveTab("mysql"); setMobileMenuOpen(false); }}
-            className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-[11px] font-medium transition-all duration-150 cursor-pointer ${activeTab === "mysql" ? "bg-blue-600 text-white shadow-sm border-l-2 border-white" : "hover:bg-slate-900 hover:text-slate-100"}`}
-          >
-            <Database className="h-3.5 w-3.5 shrink-0" />
-            <span>Instalasi MySQL</span>
           </button>
         </nav>
 
@@ -768,7 +760,6 @@ export default function App() {
                   {activeTab === "gudang" && "Master Lokasi Gudang Eksternal"}
                   {activeTab === "history" && "Audit Ledger Transaksi RM"}
                   {activeTab === "user" && "Manajemen Otorisasi Sistem"}
-                  {activeTab === "mysql" && "Struktur Schema & Generator MySQL"}
                 </span>
               </h2>
               <p className="text-[10px] text-slate-400 font-mono tracking-wide leading-none mt-0.5">
@@ -1502,74 +1493,6 @@ export default function App() {
 
                     </div>
                   ))}
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* 6. TAB: MYSQL SCHEMA HUB SUMMARY */}
-          {activeTab === "mysql" && (
-            <div className="space-y-3">
-              
-              <div className="p-4 bg-[#0f172a] border border-slate-800 rounded text-white space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="bg-blue-500/15 p-2 rounded border border-blue-500/30 text-blue-400">
-                    <Database className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-[12px] text-slate-100 uppercase tracking-wider">Database Setup &amp; Integrasi MySQL</h3>
-                    <p className="text-[10px] text-slate-400 font-mono">Gunakan script DDL relational schema berikut untuk melakukan deployment database lokal / server produksi</p>
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-slate-300 leading-relaxed max-w-4xl">
-                  Rancangan database relational ini dirancang khusus untuk menyimpan relasi stok multi-gudang (One-to-Many pada Warehouses &amp; Items, dan Many-to-Many pada Stock Balances), lengkap dengan ledger audit histori keluar-masuk barang RM.
-                </p>
-
-                <div className="flex flex-wrap items-center gap-1.5 pt-0.5 font-mono text-[9px]">
-                  <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">
-                    Host: port 3306 (MySQL)
-                  </span>
-                  <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">
-                    Engine: InnoDB
-                  </span>
-                  <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">
-                    Collate: utf8mb4_unicode_ci
-                  </span>
-                </div>
-              </div>
-
-              {/* Copy DDL SQL installation container */}
-              <div className="bg-white rounded border border-slate-200 overflow-hidden shadow-xs">
-                <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileCode className="h-4 w-4 text-slate-500" />
-                    <span className="text-[10px] font-extrabold text-slate-700 uppercase tracking-widest block font-mono">Script SQL (DDL + Seeds Insert)</span>
-                  </div>
-
-                  <button
-                    onClick={copySchemaToClipboard}
-                    className="p-1 px-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded flex items-center gap-1 transition-all cursor-pointer"
-                  >
-                    {copiedSchema ? (
-                      <>
-                        <Check className="h-3 w-3" />
-                        <span>Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3 w-3" />
-                        <span>Copy SQL Script</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                <div className="p-3 bg-slate-950">
-                  <pre className="text-[10px] font-mono text-slate-300 font-medium overflow-x-auto max-h-72 leading-relaxed custom-scroll">
-                    {mysqlSchemaScript}
-                  </pre>
                 </div>
               </div>
 
