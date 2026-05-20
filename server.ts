@@ -149,11 +149,26 @@ async function startServer() {
   // ---------------- AUTH API ----------------
   app.post("/api/auth/login", (req, res) => {
     const { username, password } = req.body;
+    const cleanUser = username?.trim().toLowerCase();
+    const cleanPass = password?.trim().toLowerCase() || "";
+
+    const matchedUser = state.users.find(u => 
+      u.username.toLowerCase() === cleanUser || 
+      u.nama.toLowerCase() === cleanUser ||
+      (cleanUser === "administrator utama" && u.username === "admin") ||
+      (cleanUser === "operator wh rm" && u.username === "operator")
+    );
     
-    // In our simplified/professional mock, any of the three users with 'password' can authenticate.
-    const matchedUser = state.users.find(u => u.username.toLowerCase() === username?.trim().toLowerCase());
-    
-    if (matchedUser && password === "password") {
+    let isPasswordValid = false;
+    if (matchedUser) {
+      if (matchedUser.role === "Admin" || matchedUser.role === "Operator") {
+        isPasswordValid = (cleanPass === "123456" || cleanPass === "password");
+      } else if (matchedUser.role === "Viewer") {
+        isPasswordValid = (cleanPass === "" || cleanPass === "no password" || cleanPass === "password");
+      }
+    }
+
+    if (matchedUser && isPasswordValid) {
       res.json({
         success: true,
         user: matchedUser
@@ -161,7 +176,7 @@ async function startServer() {
     } else {
       res.status(401).json({
         success: false,
-        message: "Username atau Password salah. (Gunakan username 'admin', 'operator', atau 'viewer' dengan password 'password')"
+        message: "Username atau Password salah. (Presets: Admin [123456], Operator [123456], Viewer [Tanpa Password])"
       });
     }
   });

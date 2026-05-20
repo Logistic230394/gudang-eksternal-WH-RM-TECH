@@ -182,21 +182,30 @@ export default function App() {
     } catch (err) {
       // Offline fallback login for easy preview testing
       const testUser = loginUsername.trim().toLowerCase();
-      if (loginPassword === "password") {
-        let matched: User | undefined;
-        if (testUser === "admin") matched = { id: "usr-1", username: "admin", nama: "Administrator Utama", role: "Admin" };
-        else if (testUser === "operator") matched = { id: "usr-2", username: "operator", nama: "Operator WH RM", role: "Operator" };
-        else if (testUser === "viewer") matched = { id: "usr-3", username: "viewer", nama: "Viewer / Supervisor", role: "Viewer" };
+      const testPass = loginPassword.trim().toLowerCase();
+      
+      let matched: User | undefined;
+      let isPassOk = false;
 
-        if (matched) {
-          setCurrentUser(matched);
-          localStorage.setItem("wh_logged_user", JSON.stringify(matched));
-          setLoginUsername("");
-          setLoginPassword("");
-          return;
-        }
+      if (testUser === "admin" || testUser === "administrator utama") {
+        matched = { id: "usr-1", username: "admin", nama: "Administrator Utama", role: "Admin" };
+        isPassOk = (testPass === "123456" || testPass === "password");
+      } else if (testUser === "operator" || testUser === "operator wh rm") {
+        matched = { id: "usr-2", username: "operator", nama: "Operator WH RM", role: "Operator" };
+        isPassOk = (testPass === "123456" || testPass === "password");
+      } else if (testUser === "viewer") {
+        matched = { id: "usr-3", username: "viewer", nama: "Viewer / Supervisor", role: "Viewer" };
+        isPassOk = (testPass === "" || testPass === "no password" || testPass === "password");
       }
-      setAuthError("Gagal menghubungi server auth. Gunakan 'admin', 'operator', atau 'viewer' dengan password 'password' untuk demo offline.");
+
+      if (matched && isPassOk) {
+        setCurrentUser(matched);
+        localStorage.setItem("wh_logged_user", JSON.stringify(matched));
+        setLoginUsername("");
+        setLoginPassword("");
+        return;
+      }
+      setAuthError("Gagal menghubungi server auth atau data salah. Presets: Admin [123456], Operator [123456], Viewer [Tanpa Password]");
     } finally {
       setIsLoggingIn(false);
     }
@@ -620,8 +629,7 @@ export default function App() {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-[11px] focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition-all text-slate-800 font-mono"
-                placeholder="••••••••"
-                required
+                placeholder={loginUsername.trim().toLowerCase() === "viewer" ? "Tanpa password" : "••••••••"}
               />
             </div>
 
@@ -639,21 +647,21 @@ export default function App() {
               <div className="grid grid-cols-3 gap-1.5 font-mono text-[10px]">
                 <button
                   type="button"
-                  onClick={() => { setLoginUsername("admin"); setLoginPassword("password"); }}
+                  onClick={() => { setLoginUsername("admin"); setLoginPassword("123456"); }}
                   className="p-1 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-center border border-slate-200 rounded text-slate-700 transition-colors uppercase font-bold cursor-pointer"
                 >
                   Admin
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setLoginUsername("operator"); setLoginPassword("password"); }}
+                  onClick={() => { setLoginUsername("operator"); setLoginPassword("123456"); }}
                   className="p-1 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-center border border-slate-200 rounded text-slate-700 transition-colors uppercase font-bold cursor-pointer"
                 >
                   Operator
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setLoginUsername("viewer"); setLoginPassword("password"); }}
+                  onClick={() => { setLoginUsername("viewer"); setLoginPassword(""); }}
                   className="p-1 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-center border border-slate-200 rounded text-slate-700 transition-colors uppercase font-bold cursor-pointer"
                 >
                   Viewer
