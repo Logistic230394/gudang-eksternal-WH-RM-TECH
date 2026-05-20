@@ -1,0 +1,6 @@
+{
+  "name": "WH RM Technical External Stock Monitoring",
+  "description": "A professional warehouse inventory app for monitoring WH RM Technical stock across external logistics providers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
